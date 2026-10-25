@@ -1,0 +1,28 @@
+VEGETATE — WINDOWS DESKTOP + IPHONE
+
+Keep this folder on the Windows desktop computer that will run the AI companion.
+This does not use your laptop or the public Netlify preview for AI requests.
+
+1. Install Node.js 24 LTS if needed: https://nodejs.org/en/download
+2. Double-click Setup-Windows.cmd. Wait for setup and the encryption check to finish.
+3. Install Tailscale on the desktop and iPhone: https://tailscale.com/download
+   Sign in to the same Tailscale account on both devices.
+4. Double-click Connect-iPhone.cmd. Follow any Tailscale HTTPS prompt, then rerun it.
+5. Double-click Start-Vegetate.cmd. Keep its window open.
+6. On the desktop browser page, open AI connection and select Sign in with ChatGPT.
+   Approve ChatGPT plan usage. Return to Vegetate to see the private iPhone URL
+   and pairing code.
+7. Open that URL in Safari on the iPhone with Tailscale connected. Open AI connection,
+   enter the pairing code, and select Unlock AI.
+8. In Safari, Share > Add to Home Screen installs the private app.
+
+The desktop must be on and awake for AI requests. Pairing codes change when the
+companion restarts. Saved recipes remain on the device/browser where you saved them.
+Use Saved recipes > Export / Import to transfer recipes from the old Netlify preview.
+
+No ChatGPT password or token should be pasted into a terminal, this chat, or Netlify.
+Sign-in happens through OpenAI's browser flow. Credentials stay encrypted under your
+Windows account. The phone does not receive them.
+
+Read docs/windows-companion.md for details, troubleshooting and validation limits.
+The bundled OpenAI Sign-in DevKit has a Noncommercial License; see vendor/siwc-local.
