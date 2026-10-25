@@ -20,6 +20,7 @@
     "src",
     "server",
     "companion",
+    "scripts",
     "netlify",
     "vite.config.ts",
     "playwright.config.ts",

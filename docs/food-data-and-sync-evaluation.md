@@ -7,7 +7,7 @@
 - The explanation, tradeoffs, nutrition, ingredient analysis, and sources after a generated recipe are closed panels that can be opened individually.
 - Estimated nutrition includes fibre. The app accepts cautious, unsourced values, displays the assumptions, and marks totals as partial when ingredients are omitted.
 - With online research switched off, the companion requests lower reasoning effort. The selected ChatGPT model remains under the user's control.
-- No food-data service or recipe-sync service is connected yet.
+- The recipe-generation flow is not yet connected to a food-data service, and recipe sync is not implemented. A separate [USDA search prototype](food-data-prototype.md) is available on this branch.
 
 ## Timing and quality checks
 

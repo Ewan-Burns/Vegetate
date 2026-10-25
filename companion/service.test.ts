@@ -125,6 +125,41 @@ describe("Windows companion security and request flow", () => {
     ).toBe(409);
     expect(client.streamResponse).not.toHaveBeenCalled();
   });
+  it("keeps the USDA prototype on the desktop and separate from ChatGPT usage", async () => {
+    const client = fakeClient(false);
+    const searchFoods = vi.fn(async () => ({
+      source: "USDA FoodData Central" as const,
+      query: "walnuts",
+      candidates: [],
+      matchPolicy: "review-required" as const,
+    }));
+    const service = createCompanionService(client, { searchFoods });
+    const local = await service.handle(
+      request("food-search", { query: "walnuts" }),
+      { local: true },
+    );
+    expect(local.status).toBe(200);
+    expect((await local.json()).matchPolicy).toBe("review-required");
+    const pairing = await (await service.handle(status(), { local: true })).json();
+    const unlock = await (
+      await service.handle(request("unlock", {}, pairing.pairingCode), {
+        local: false,
+      })
+    ).json();
+    const remote = await service.handle(
+      request("food-search", { query: "walnuts" }, unlock.token),
+      { local: false },
+    );
+    expect(remote.status).toBe(403);
+    expect(searchFoods).toHaveBeenCalledTimes(1);
+    const invalid = await service.handle(
+      request("food-search", { query: "x" }),
+      { local: true },
+    );
+    expect(invalid.status).toBe(400);
+    expect(searchFoods).toHaveBeenCalledTimes(1);
+    expect(client.streamResponse).not.toHaveBeenCalled();
+  });
   it("permits explicitly labelled nutrition assumptions without web research", async () => {
     const client = fakeClient();
     const service = createCompanionService(client);

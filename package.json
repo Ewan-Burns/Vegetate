@@ -16,7 +16,8 @@
     "build:chatgpt": "node scripts/build-chatgpt.mjs",
     "postinstall": "npm run build:chatgpt",
     "companion": "tsx companion/main.ts",
-    "companion:check": "tsx companion/doctor.ts"
+    "companion:check": "tsx companion/doctor.ts",
+    "food:probe": "tsx scripts/probe-food-data.ts"
   },
   "dependencies": {
     "@siwc/local": "file:vendor/siwc-local",

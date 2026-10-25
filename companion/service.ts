@@ -19,6 +19,7 @@ import {
   adaptationInput,
 } from "../src/core/prompts";
 import { ApiError, collectSources, recipeHash, sourceUrl } from "../server/api";
+import { createFoodSearch, foodSearchInput } from "./food-data";
 
 type LocalClient = Pick<
   ChatGPTClient,
@@ -71,9 +72,14 @@ const sameRecipeUrl = (found: string, expected: string) => {
 
 export function createCompanionService(
   client: LocalClient,
-  options: { now?: () => number; publicUrl?: string } = {},
+  options: {
+    now?: () => number;
+    publicUrl?: string;
+    searchFoods?: ReturnType<typeof createFoodSearch>;
+  } = {},
 ) {
   const now = options.now || Date.now;
+  const searchFoods = options.searchFoods || createFoodSearch();
   const rawPair = randomBytes(6).toString("hex").toUpperCase();
   const pairingCode = `${rawPair.slice(0, 6)}-${rawPair.slice(6)}`;
   const paired = new Map<string, number>();
@@ -352,6 +358,20 @@ export function createCompanionService(
           401,
           "Pair this device with the code shown on your desktop.",
         );
+      if (action === "food-search") {
+        if (!context.local)
+          throw new ApiError(
+            403,
+            "Food-data testing is available on the desktop only.",
+          );
+        const input = foodSearchInput.safeParse(body);
+        if (!input.success)
+          throw new ApiError(
+            400,
+            "Enter a food name of 2–80 characters and valid search options.",
+          );
+        return json(await searchFoods(input.data));
+      }
       if (action === "model") {
         const session = await client.getSession();
         const available = await getModels(session);
