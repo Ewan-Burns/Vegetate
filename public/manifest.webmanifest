@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "Vegetate",
+  "short_name": "Vegetate",
+  "description": "Import, adapt and save recipes.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f3e9",
+  "theme_color": "#f5f3e9",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
