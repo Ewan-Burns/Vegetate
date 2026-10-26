@@ -4,7 +4,9 @@
 
 ## Why USDA first
 
-[USDA FoodData Central](https://fdc.nal.usda.gov/api-guide/) is free to access with an API key. Its data are public domain (CC0), and USDA asks to be credited. The documented default limit is 1,000 requests/hour per IP. The public `DEMO_KEY` supports initial testing but allows only 30 requests/hour and 50/day per IP. Set `USDA_FDC_API_KEY` in the companion process environment for continued testing; the key stays on the Windows backend and is never returned to the browser. The prototype caches identical searches in memory for one hour.
+[USDA FoodData Central](https://fdc.nal.usda.gov/api-guide/) is free to access with an API key. Its data are public domain (CC0), and USDA asks to be credited. The documented default limit is 1,000 requests/hour per IP. The public `DEMO_KEY` supports initial testing but allows only 30 requests/hour and 50/day per IP. For continued testing, set `USDA_FDC_API_KEY` in the companion process environment or in a Git-ignored `.env.local` or `.env` file at the project root. The companion and `food:probe` load these files at startup, with existing process variables taking priority. The key stays on the Windows backend and is never returned to the browser. The prototype caches identical searches in memory for one hour.
+
+The desktop review screen has an experimental **Try USDA food data instead** option. It searches up to 12 original ingredients, three at a time, and gives the AI the first three results for each search. These are candidates, not confirmed matches. The AI must still check preparation and edible yield, and replacement ingredients may remain estimates. If USDA is unavailable or rate limited, generation continues with clearly labelled assumptions. This mode turns off broad web research and is currently available only on the desktop. Restart the companion after adding or changing an env file.
 
 The route accepts:
 
@@ -25,6 +27,8 @@ To probe the API from this branch without stopping the currently running compani
 | `seitan`, SR Legacy/Foundation | 1.3 s | No match. A separate Branded search reported 65 hits, but these represent different products and recipes. |
 
 These are search timings, not full recipe generation timings. The shared `DEMO_KEY` then hit its rate limit; tests use representative responses to verify normalization and endpoint access. A personal free key is needed for sustained live comparisons. Candidate selection still needs review: using the first hit would have made the walnut nutrition wildly wrong.
+
+An initial tonkotsu-style ramen run found a validation false positive for an ingredient explicitly labelled "without fish dashi"; the check and prompt were corrected. A second full adaptation completed in 268 seconds and produced vegetarian and vegan versions, but the exhausted demo quota meant no USDA candidates were used and all nutrition figures were unverified model estimates. This does not establish a speed or accuracy gain for the database mode.
 
 ## Other services
 

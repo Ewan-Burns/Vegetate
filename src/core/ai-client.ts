@@ -148,8 +148,9 @@ export async function adaptWithAI(
   code: string,
   signal: AbortSignal,
   research = true,
+  foodData = false,
 ): Promise<AdaptationBundle> {
-  const result = await runJob("adapt", { recipe, research }, code, signal);
+  const result = await runJob("adapt", { recipe, research, foodData }, code, signal);
   const raw = adaptationBundleSchema.parse(result.data);
   const sources: Source[] = Array.isArray(result.sources) ? result.sources : [];
   return normalizeBundle(

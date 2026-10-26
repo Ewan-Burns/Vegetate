@@ -8,8 +8,10 @@ import { createWindowsEncryption } from "./windows-encryption";
 import { createCompanionService } from "./service";
 import { makeServer } from "./http";
 import { tailscaleOrigin } from "./tailscale";
+import { loadLocalEnv } from "../scripts/load-local-env";
 
 async function main() {
+  loadLocalEnv();
   if (process.platform !== "win32")
     throw new Error(
       "Run this companion on your Windows desktop. Its encrypted credential storage uses Windows DPAPI.",

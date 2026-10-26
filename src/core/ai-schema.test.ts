@@ -51,6 +51,18 @@ describe("adaptation quality checks", () => {
       "whole milk",
     ]);
   });
+  it("does not mistake an explicit fish exclusion for a fish ingredient", () => {
+    const recipe = {
+      ...original,
+      ingredients: [
+        { id: "miso", name: "plain white miso, without fish dashi", quantity: 30, unit: "g" },
+        { id: "sauce", name: "fish sauce without fish dashi", quantity: 10, unit: "ml" },
+      ],
+    };
+    expect(dietIssues(recipe, "vegetarian")).toEqual([
+      "fish sauce without fish dashi",
+    ]);
+  });
   it("keeps both modes and research separate from unsupported source claims", () => {
     const data = structuredClone(rawBundle);
     data.sources.push({

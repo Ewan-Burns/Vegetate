@@ -228,6 +228,7 @@ export function App() {
   const [cooking, setCooking] = useState(false);
   const [busy, setBusy] = useState<"extract" | "adapt" | null>(null);
   const [research, setResearch] = useState(true);
+  const [foodData, setFoodData] = useState(false);
   const [error, setError] = useState("");
   const [connectionError, setConnectionError] = useState("");
   const [toast, setToast] = useState("");
@@ -396,6 +397,7 @@ export function App() {
         code,
         current.signal,
         research,
+        foodData,
       );
       setBundle(result);
       setLegacy(null);
@@ -883,10 +885,33 @@ export function App() {
                   type="checkbox"
                   checked={research}
                   disabled={!!busy}
-                  onChange={(event) => setResearch(event.target.checked)}
+                  onChange={(event) => {
+                    setResearch(event.target.checked);
+                    if (event.target.checked) setFoodData(false);
+                  }}
                 />{" "}
                 Use online research when adapting
               </label>
+              {status?.local && (
+                <label className="research-option">
+                  <input
+                    type="checkbox"
+                    checked={foodData}
+                    disabled={!!busy}
+                    onChange={(event) => {
+                      setFoodData(event.target.checked);
+                      if (event.target.checked) setResearch(false);
+                    }}
+                  />{" "}
+                  Try USDA food data instead (experimental, faster)
+                </label>
+              )}
+              {foodData && (
+                <p className="muted">
+                  USDA gives candidate nutrition values for the original ingredients.
+                  Check the matches; replacement nutrition may still be estimated.
+                </p>
+              )}
               <div className="button-row">
                 <button
                   className="button primary"

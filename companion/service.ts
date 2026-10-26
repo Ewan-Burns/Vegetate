@@ -20,6 +20,7 @@ import {
 } from "../src/core/prompts";
 import { ApiError, collectSources, recipeHash, sourceUrl } from "../server/api";
 import { createFoodSearch, foodSearchInput } from "./food-data";
+import { collectFoodEvidence } from "./food-evidence";
 
 type LocalClient = Pick<
   ChatGPTClient,
@@ -126,21 +127,31 @@ export function createCompanionService(
     input: string,
     useResearch: boolean,
     url?: string,
+    useFoodData = false,
   ) {
     try {
       let completed: Record<string, unknown> = {};
       const schema =
         job.kind === "extract" ? extractedRecipeSchema : adaptationBundleSchema;
+      const foodEvidence =
+        useFoodData && job.original
+          ? await collectFoodEvidence(job.original, searchFoods)
+          : [];
       const result = await client.streamResponse({
         model: selectedModel,
-        input,
+        input: foodEvidence.length
+          ? `${input}\n\nUSDA FoodData Central search candidates (not confirmed matches): ${JSON.stringify(foodEvidence)}`
+          : input,
         instructions:
           (job.kind === "extract"
             ? EXTRACTION_INSTRUCTIONS
             : ADAPTATION_INSTRUCTIONS) +
           (useResearch
             ? ""
-            : "\nNo live web research is available for this request. Do not invent citations. Give cautious best-effort nutrition estimates, mark sourceUrl null, and spell out each portion or product assumption."),
+            : "\nNo live web research is available for this request. Do not invent citations. Give cautious best-effort nutrition estimates, mark sourceUrl null, and spell out each portion or product assumption.") +
+          (useFoodData
+            ? "\nUSDA search results are candidates, not verified ingredient matches. Use a candidate only if its food and preparation clearly match; otherwise estimate and mark the assumption. Raw bones do not equal edible broth, so account for extraction yield and fat separately. Never treat the first search hit as automatically correct."
+            : ""),
         signal: job.controller.signal,
         timeoutMs: job.kind === "adapt" ? 8 * 60_000 : 180_000,
         reasoning: { effort: useResearch ? "medium" : "low" },
@@ -445,6 +456,12 @@ export function createCompanionService(
         const url = action === "extract" ? sourceUrl(text) : undefined;
         const research =
           !!url || (action === "adapt" && body.research !== false);
+        const foodData = action === "adapt" && body.foodData === true;
+        if (foodData && (research || !context.local))
+          throw new ApiError(
+            400,
+            "Food-data testing is available only on the desktop without web research.",
+          );
         const job: Job = {
           id: randomUUID(),
           owner: identity,
@@ -460,6 +477,7 @@ export function createCompanionService(
           url ? `Read only this recipe URL: ${url}` : text,
           research,
           url,
+          foodData,
         );
         return json({ job: job.id, status: "running" }, 202);
       }

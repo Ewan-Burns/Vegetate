@@ -174,6 +174,34 @@ describe("Windows companion security and request flow", () => {
     expect(options.instructions).toContain("best-effort nutrition estimates");
     expect(options.instructions).not.toContain("Do not invent citations or numerical nutrition inputs");
   });
+  it("offers USDA candidates for desktop fast mode without treating them as verified matches", async () => {
+    const client = fakeClient();
+    const searchFoods = vi.fn(async () => ({
+      source: "USDA FoodData Central" as const,
+      query: "chicken breast",
+      candidates: [{
+        fdcId: 123,
+        description: "Chicken, breast, raw",
+        dataType: "SR Legacy",
+        brandOwner: null,
+        per100g: { kcal: 120, protein: 22, carbs: 0, fat: 3, fiber: 0 },
+        sourceUrl: "https://fdc.nal.usda.gov/food-search/?query=123",
+      }],
+      matchPolicy: "review-required" as const,
+    }));
+    const service = createCompanionService(client, { searchFoods });
+    const response = await service.handle(
+      request("adapt", { recipe: original, research: false, foodData: true }),
+      { local: true },
+    );
+    expect(response.status).toBe(202);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const options = client.streamResponse.mock.calls[0][0];
+    expect(searchFoods).toHaveBeenCalledTimes(original.ingredients.length);
+    expect(options.tools).toBeUndefined();
+    expect(options.input).toContain("not confirmed matches");
+    expect(options.instructions).toContain("Never treat the first search hit");
+  });
   it("shows an uncited URL draft only with a clear verification warning", async () => {
     const client = fakeClient();
     client.streamResponse.mockImplementation(async (options) => {

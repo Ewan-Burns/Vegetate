@@ -229,7 +229,10 @@ export function dietIssues(
 ): string[] {
   const issues: string[] = [];
   for (const ingredient of recipe.ingredients) {
-    const name = ingredient.name.toLowerCase();
+    const name = ingredient.name
+      .toLowerCase()
+      .replace(/\b(?:without|no) fish dashi\b/g, "")
+      .replace(/\bfish[- ]free\b/g, "");
     const explicitPlant =
       /\b(?:vegan|plant[- ]based|meat[- ]free|meatless|mock|vegetarian)\b/.test(
         name,

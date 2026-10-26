@@ -1,4 +1,7 @@
 import { createFoodSearch } from "../companion/food-data";
+import { loadLocalEnv } from "./load-local-env";
+
+loadLocalEnv();
 
 const args = process.argv.slice(2);
 const branded = args.includes("--branded");
