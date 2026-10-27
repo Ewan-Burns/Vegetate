@@ -163,5 +163,6 @@ export async function adaptWithAI(
     recipe,
     sources,
     result.provider === "chatgpt" ? "chatgpt" : "openai",
+    Array.isArray(result.databaseSources) ? result.databaseSources : [],
   );
 }

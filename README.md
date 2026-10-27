@@ -19,7 +19,9 @@ npm run dev
 
 Paste recipe text or drop a recipe URL, review the extracted original, then generate **both** vegetarian and vegan versions. The result shows complete instructions, substitution reasons, changes to the cooking method, ingredient-role analysis, macro tradeoffs and research sources. Save the original and both versions together under **Saved recipes**.
 
-The Windows companion and an optional hosted API adapter are implemented. Live ChatGPT account access has not been validated from this cloud machine, and no API key is configured. See [AI connection details](docs/ai-connection.md). Without a connected account, pasted text can still be reviewed and saved, but link extraction and automatic adaptation are unavailable. The app does not substitute a canned recipe for a failed or unavailable AI response. Previously saved sample adaptations remain readable.
+The Windows companion and an optional hosted API adapter are implemented. Live ChatGPT recipe generation and USDA/Open Food Facts access were tested on Windows on 27 October 2026. Account connections and keys belong to each installation and are not included in this repository. See [AI connection details](docs/ai-connection.md). Without a connected account, pasted text can still be reviewed and saved, but link extraction and automatic adaptation are unavailable. The app does not substitute a canned recipe for a failed or unavailable AI response. Previously saved sample adaptations remain readable.
+
+With **Use food databases**, ChatGPT returns cooking changes and the companion reconstructs complete recipes, then calculates nutrition from selected USDA records and Open Food Facts labels. Amount assumptions, representative products and missing values remain visible. See [food-data setup, provenance and benchmarks](docs/food-data-prototype.md). Recipes and nutrient totals still need human review and cooking tests.
 
 The offline text importer expects a title, `Serves N`, an `Ingredients` section and a `Method`, `Directions` or `Instructions` section. The AI extractor handles less structured text and public recipe links once configured. Every extraction needs user review. Screenshots and video import are not implemented. Macro preservation is secondary to taste and texture; precise personal macro optimisation is not implemented.
 
@@ -76,4 +78,4 @@ For a repeatable cloud dependency refresh, run `bash scripts/setup-cloud.sh`. It
 - `tests/`: full browser workflow and accessibility checks.
 - [POC plan](docs/poc-plan.md): scope, acceptance checks and later milestones.
 
-The next milestone is connecting an authorized AI account and testing real recipes end to end, including cooking the results. Do not claim the live workflow works until those checks have run. Keep provider credentials out of the browser bundle and do not move local ChatGPT OAuth credentials to Netlify as a workaround for hosted-app eligibility.
+The next milestones are broader recipe comparisons, actual-product selection, and cooking tests. Keep provider credentials out of the browser bundle and do not move local ChatGPT OAuth credentials to Netlify as a workaround for hosted-app eligibility.

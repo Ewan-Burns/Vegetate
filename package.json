@@ -17,7 +17,10 @@
     "postinstall": "npm run build:chatgpt",
     "companion": "tsx companion/main.ts",
     "companion:check": "tsx companion/doctor.ts",
-    "food:probe": "tsx scripts/probe-food-data.ts"
+    "food:probe": "tsx scripts/probe-food-data.ts",
+    "food:refresh": "tsx scripts/refresh-usda-catalog.ts",
+    "food:products": "tsx scripts/probe-open-food-facts.ts",
+    "food:benchmark": "node scripts/benchmark-food-generation.mjs"
   },
   "dependencies": {
     "@siwc/local": "file:vendor/siwc-local",

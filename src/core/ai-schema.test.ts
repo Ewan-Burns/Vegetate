@@ -63,6 +63,39 @@ describe("adaptation quality checks", () => {
       "fish sauce without fish dashi",
     ]);
   });
+  it("does not treat vegetarian dairy labels as suitable for vegan recipes", () => {
+    const names = ["vegetarian Parmesan", "vegetarian cheese", "vegetarian milk"];
+    const recipe = {
+      ...original,
+      ingredients: names.map((name, i) => ({
+        id: String(i), name, quantity: 100, unit: "g",
+      })),
+    };
+    expect(dietIssues(recipe, "vegetarian")).toEqual([]);
+    expect(dietIssues(recipe, "vegan")).toEqual(names);
+    const plantRecipe = {
+      ...recipe,
+      ingredients: recipe.ingredients.map((item) => ({
+        ...item, name: item.name.replace("vegetarian", "plant-based"),
+      })),
+    };
+    expect(dietIssues(plantRecipe, "vegan")).toEqual([]);
+  });
+  it("keeps meat-alternative labels from hiding dairy or eggs", () => {
+    const names = [
+      "mock duck", "meat-free chicken pieces", "meatless cheese",
+      "meat-free chicken pieces with egg",
+    ];
+    const recipe = {
+      ...original,
+      ingredients: names.map((name, i) => ({
+        id: String(i), name, quantity: 100, unit: "g",
+      })),
+    };
+    expect(dietIssues(recipe, "vegan")).toEqual([
+      "meatless cheese", "meat-free chicken pieces with egg",
+    ]);
+  });
   it("keeps both modes and research separate from unsupported source claims", () => {
     const data = structuredClone(rawBundle);
     data.sources.push({
@@ -106,6 +139,11 @@ describe("nutrition estimates", () => {
         new Set([input.sourceUrl]),
       ).perServing,
     ).toEqual({ kcal: 270, protein: 5.3, carbs: 60, fat: 0.8, fiber: null });
+  });
+  it("preserves the explanation when an unknown edible weight excludes an ingredient", () => {
+    const result = estimateNutrition(recipe, [{ ...input, grams: null, note: "Only the strained stock is consumed; yield is unknown." }], new Set());
+    expect(result.missingIngredients).toEqual(["rice"]);
+    expect(result.notes).toContain("rice: Only the strained stock is consumed; yield is unknown.");
   });
   it("labels unverified values and keeps a partial total when data are missing", () => {
     expect(estimateNutrition(recipe, [input], new Set()).notes).toContain(

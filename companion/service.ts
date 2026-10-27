@@ -12,15 +12,22 @@ import {
   extractedRecipeSchema,
   normalizeBundle,
 } from "../src/core/ai-schema";
+import {
+  materializeAdaptationPatch,
+  patchAdaptationBundleSchema,
+  PATCH_RESPONSE_INSTRUCTIONS,
+} from "../src/core/adaptation-patch";
 import type { Recipe } from "../src/core/recipe";
 import {
   ADAPTATION_INSTRUCTIONS,
   EXTRACTION_INSTRUCTIONS,
+  FAST_ADAPTATION_INSTRUCTIONS,
   adaptationInput,
 } from "../src/core/prompts";
 import { ApiError, collectSources, recipeHash, sourceUrl } from "../server/api";
 import { createFoodSearch, foodSearchInput } from "./food-data";
-import { collectFoodEvidence } from "./food-evidence";
+import { createDatabaseNutrition } from "./database-nutrition";
+import { createOpenFoodFactsSearch, openFoodSearchInput } from "./open-food-facts";
 
 type LocalClient = Pick<
   ChatGPTClient,
@@ -79,12 +86,16 @@ export function createCompanionService(
     searchFoods?: ReturnType<typeof createFoodSearch>;
     foodKeyConfigured?: boolean;
     configureFoodKey?: (key: string) => Promise<ReturnType<typeof createFoodSearch>>;
+    databaseNutrition?: ReturnType<typeof createDatabaseNutrition>;
+    searchProducts?: ReturnType<typeof createOpenFoodFactsSearch>;
   } = {},
 ) {
   const now = options.now || Date.now;
   let searchFoods = options.searchFoods || createFoodSearch();
   let foodKeyConfigured = options.foodKeyConfigured ?? Boolean(process.env.USDA_FDC_API_KEY);
   let savingFoodKey = false;
+  const databaseNutrition = options.databaseNutrition || createDatabaseNutrition();
+  const searchProducts = options.searchProducts || createOpenFoodFactsSearch();
   const rawPair = randomBytes(6).toString("hex").toUpperCase();
   const pairingCode = `${rawPair.slice(0, 6)}-${rawPair.slice(6)}`;
   const paired = new Map<string, number>();
@@ -135,30 +146,20 @@ export function createCompanionService(
     useFoodData = false,
   ) {
     try {
+      const started = now();
       let completed: Record<string, unknown> = {};
       const schema =
-        job.kind === "extract" ? extractedRecipeSchema : adaptationBundleSchema;
-      const foodEvidence =
-        useFoodData && job.original
-          ? await collectFoodEvidence(job.original, searchFoods)
-          : [];
+        job.kind === "extract" ? extractedRecipeSchema : useFoodData ? patchAdaptationBundleSchema : adaptationBundleSchema;
       const result = await client.streamResponse({
         model: selectedModel,
-        input: foodEvidence.length
-          ? `${input}\n\nUSDA FoodData Central search candidates (not confirmed matches): ${JSON.stringify(foodEvidence)}`
-          : input,
+        input,
         instructions:
           (job.kind === "extract"
             ? EXTRACTION_INSTRUCTIONS
-            : ADAPTATION_INSTRUCTIONS) +
-          (useResearch
+            : useFoodData ? `${FAST_ADAPTATION_INSTRUCTIONS}\n\n${PATCH_RESPONSE_INSTRUCTIONS}` : ADAPTATION_INSTRUCTIONS) +
+          (useResearch || useFoodData
             ? ""
-            : useFoodData
-              ? "\nNo live web research is available. Use only the supplied USDA URLs for matching nutrition data. For unsourced estimates set sourceUrl to null and spell out each portion or product assumption. Do not invent citations."
-              : "\nNo live web research is available for this request. Do not invent citations. Give cautious best-effort nutrition estimates, mark sourceUrl null, and spell out each portion or product assumption.") +
-          (useFoodData
-            ? "\nUSDA search results are candidates, not verified ingredient matches. Use a candidate only if its food and preparation clearly match; otherwise estimate and mark the assumption. Raw bones do not equal edible broth, so account for extraction yield and fat separately. Never treat the first search hit as automatically correct."
-            : ""),
+            : "\nNo live web research is available for this request. Do not invent citations. Give cautious best-effort nutrition estimates, mark sourceUrl null, and spell out each portion or product assumption."),
         signal: job.controller.signal,
         timeoutMs: job.kind === "adapt" ? 8 * 60_000 : 180_000,
         reasoning: { effort: useResearch ? "medium" : "low" },
@@ -190,6 +191,7 @@ export function createCompanionService(
             completed = value as Record<string, unknown>;
         },
       });
+      const modelMs = now() - started;
       job.controller.signal.throwIfAborted();
       let decoded: unknown;
       try {
@@ -233,17 +235,26 @@ export function createCompanionService(
         }
         job.result = { status: "completed", kind: "extract", data, sources };
       } else {
-        const data = adaptationBundleSchema.parse(decoded);
-        normalizeBundle(data, job.original!, sources, "chatgpt");
+        const nutritionStarted = now();
+        const enriched = useFoodData
+          ? await databaseNutrition(materializeAdaptationPatch(patchAdaptationBundleSchema.parse(decoded), job.original!), job.original!)
+          : {data:adaptationBundleSchema.parse(decoded),sources:[],databaseSources:[]};
+        job.controller.signal.throwIfAborted();
+        const data = enriched.data;
+        sources.push(...enriched.sources);
+        const normalized = normalizeBundle(data, job.original!, sources, "chatgpt", enriched.databaseSources);
         job.result = {
           status: "completed",
           kind: "adapt",
           provider: "chatgpt",
           data,
           sources,
+          databaseSources: enriched.databaseSources,
+          timings: {modelMs, nutritionMs:now()-nutritionStarted,totalMs:now()-started,responseChars:result.text.length},
           ...(useFoodData ? { foodData: {
-            queriesWithCandidates: foodEvidence.length,
-            candidateCount: foodEvidence.reduce((total, row) => total + row.candidates.length, 0),
+            original: normalized.originalNutrition.databaseIngredients,
+            vegetarian: normalized.vegetarian.nutrition?.databaseIngredients,
+            vegan: normalized.vegan.nutrition?.databaseIngredients,
           } } : {}),
         };
       }
@@ -428,6 +439,11 @@ export function createCompanionService(
           );
         return json(await searchFoods(input.data));
       }
+      if (action === "product-search") {
+        const input = openFoodSearchInput.safeParse(body);
+        if (!input.success) throw new ApiError(400,"Enter a product name of 2–80 characters.");
+        return json(await searchProducts(input.data));
+      }
       if (action === "model") {
         const session = await client.getSession();
         const available = await getModels(session);
@@ -502,10 +518,10 @@ export function createCompanionService(
         const research =
           !!url || (action === "adapt" && body.research !== false);
         const foodData = action === "adapt" && body.foodData === true;
-        if (foodData && (research || !context.local))
+        if (foodData && research)
           throw new ApiError(
             400,
-            "Food-data testing is available only on the desktop without web research.",
+            "Choose food databases or web research for this request.",
           );
         const job: Job = {
           id: randomUUID(),

@@ -1,0 +1,762 @@
+{
+  "retrievedAt": "2026-10-27T20:08:44.660Z",
+  "source": "USDA FoodData Central",
+  "foods": {
+    "onion": {
+      "fdcId": 170000,
+      "description": "Onions, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 40,
+        "protein": 1.1,
+        "carbs": 9.34,
+        "fat": 0.1,
+        "fiber": 1.7
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170000"
+    },
+    "ginger": {
+      "fdcId": 169231,
+      "description": "Ginger root, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 80,
+        "protein": 1.82,
+        "carbs": 17.77,
+        "fat": 0.75,
+        "fiber": 2
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=169231"
+    },
+    "scallion": {
+      "fdcId": 170005,
+      "description": "Onions, spring or scallions (includes tops and bulb), raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 32,
+        "protein": 1.83,
+        "carbs": 7.34,
+        "fat": 0.19,
+        "fiber": 2.6
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170005"
+    },
+    "garlic": {
+      "fdcId": 1104647,
+      "description": "Garlic, raw",
+      "dataType": "Foundation",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 143,
+        "protein": 6.62,
+        "carbs": 28.2,
+        "fat": 0.38,
+        "fiber": 2.7
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=1104647"
+    },
+    "shiitakeDried": {
+      "fdcId": 168436,
+      "description": "Mushrooms, shiitake, dried",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 296,
+        "protein": 9.58,
+        "carbs": 75.37,
+        "fat": 0.99,
+        "fiber": 11.5
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=168436"
+    },
+    "mushroom": {
+      "fdcId": 169251,
+      "description": "Mushrooms, white, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 22,
+        "protein": 3.09,
+        "carbs": 3.26,
+        "fat": 0.34,
+        "fiber": 1
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=169251"
+    },
+    "carrot": {
+      "fdcId": 170393,
+      "description": "Carrots, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 41,
+        "protein": 0.93,
+        "carbs": 9.58,
+        "fat": 0.24,
+        "fiber": 2.8
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170393"
+    },
+    "tomato": {
+      "fdcId": 2685582,
+      "description": "Tomato, puree, canned",
+      "dataType": "Foundation",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 40.845,
+        "protein": 1.578125,
+        "carbs": 8.036875,
+        "fat": 0.265,
+        "fiber": 1.971
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=2685582"
+    },
+    "sake": {
+      "fdcId": 167723,
+      "description": "Alcoholic beverage, rice (sake)",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 134,
+        "protein": 0.5,
+        "carbs": 5,
+        "fat": 0,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=167723"
+    },
+    "shiitakeFresh": {
+      "fdcId": 169242,
+      "description": "Mushrooms, shiitake, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 34,
+        "protein": 2.24,
+        "carbs": 6.79,
+        "fat": 0.49,
+        "fiber": 2.5
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=169242"
+    },
+    "soySauce": {
+      "fdcId": 174277,
+      "description": "Soy sauce made from soy and wheat (shoyu)",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 53,
+        "protein": 8.14,
+        "carbs": 4.93,
+        "fat": 0.57,
+        "fiber": 0.8
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=174277"
+    },
+    "miso": {
+      "fdcId": 172442,
+      "description": "Miso",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 198,
+        "protein": 12.79,
+        "carbs": 25.37,
+        "fat": 6.01,
+        "fiber": 5.4
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=172442"
+    },
+    "silkenTofu": {
+      "fdcId": 174292,
+      "description": "MORI-NU, Tofu, silken, soft",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 55,
+        "protein": 4.8,
+        "carbs": 2.9,
+        "fat": 2.7,
+        "fiber": 0.1
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=174292"
+    },
+    "tofu": {
+      "fdcId": 172475,
+      "description": "Tofu, raw, firm, prepared with calcium sulfate",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 144,
+        "protein": 17.27,
+        "carbs": 2.78,
+        "fat": 8.72,
+        "fiber": 2.3
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=172475"
+    },
+    "soyMilk": {
+      "fdcId": 175215,
+      "description": "Soymilk (all flavors), unsweetened, with added calcium, vitamins A and D",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 33,
+        "protein": 2.86,
+        "carbs": 1.74,
+        "fat": 1.61,
+        "fiber": 0.5
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=175215"
+    },
+    "tahini": {
+      "fdcId": 170189,
+      "description": "Seeds, sesame butter, tahini, from roasted and toasted kernels (most common type)",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 595,
+        "protein": 17,
+        "carbs": 21.19,
+        "fat": 53.76,
+        "fiber": 9.3
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170189"
+    },
+    "oil": {
+      "fdcId": 172336,
+      "description": "Oil, canola",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 884,
+        "protein": 0,
+        "carbs": 0,
+        "fat": 100,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=172336"
+    },
+    "sesameOil": {
+      "fdcId": 171016,
+      "description": "Oil, sesame, salad or cooking",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 884,
+        "protein": 0,
+        "carbs": 0,
+        "fat": 100,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=171016"
+    },
+    "cashewButter": {
+      "fdcId": 170163,
+      "description": "Nuts, cashew butter, plain, without salt added",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 587,
+        "protein": 17.56,
+        "carbs": 27.57,
+        "fat": 49.41,
+        "fiber": 2
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170163"
+    },
+    "starch": {
+      "fdcId": 169698,
+      "description": "Cornstarch",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 381,
+        "protein": 0.26,
+        "carbs": 91.27,
+        "fat": 0.05,
+        "fiber": 0.9
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=169698"
+    },
+    "oliveOil": {
+      "fdcId": 171413,
+      "description": "Oil, olive, salad or cooking",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 884,
+        "protein": 0,
+        "carbs": 0,
+        "fat": 100,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=171413"
+    },
+    "eggCooked": {
+      "fdcId": 173424,
+      "description": "Egg, whole, cooked, hard-boiled",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 155,
+        "protein": 12.58,
+        "carbs": 1.12,
+        "fat": 10.61,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=173424"
+    },
+    "egg": {
+      "fdcId": 171287,
+      "description": "Egg, whole, raw, fresh",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 143,
+        "protein": 12.56,
+        "carbs": 0.72,
+        "fat": 9.51,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=171287"
+    },
+    "pastaDry": {
+      "fdcId": 168927,
+      "description": "Pasta, dry, unenriched",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 371,
+        "protein": 13.04,
+        "carbs": 74.67,
+        "fat": 1.51,
+        "fiber": 3.2
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=168927"
+    },
+    "riceCooked": {
+      "fdcId": 168878,
+      "description": "Rice, white, long-grain, regular, enriched, cooked",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 130,
+        "protein": 2.69,
+        "carbs": 28.17,
+        "fat": 0.28,
+        "fiber": 0.4
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=168878"
+    },
+    "lentilsCooked": {
+      "fdcId": 172421,
+      "description": "Lentils, mature seeds, cooked, boiled, without salt",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 116,
+        "protein": 9.02,
+        "carbs": 20.13,
+        "fat": 0.38,
+        "fiber": 7.9
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=172421"
+    },
+    "lentilsDry": {
+      "fdcId": 172420,
+      "description": "Lentils, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 352,
+        "protein": 24.63,
+        "carbs": 63.35,
+        "fat": 1.06,
+        "fiber": 10.7
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=172420"
+    },
+    "riceDry": {
+      "fdcId": 169756,
+      "description": "Rice, white, long-grain, regular, raw, unenriched",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 365,
+        "protein": 7.13,
+        "carbs": 79.95,
+        "fat": 0.66,
+        "fiber": 1.3
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=169756"
+    },
+    "butter": {
+      "fdcId": 173430,
+      "description": "Butter, without salt",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 717,
+        "protein": 0.85,
+        "carbs": 0.06,
+        "fat": 81.11,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=173430"
+    },
+    "sugar": {
+      "fdcId": 169655,
+      "description": "Sugars, granulated",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 387,
+        "protein": 0,
+        "carbs": 99.98,
+        "fat": 0,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=169655"
+    },
+    "walnuts": {
+      "fdcId": 170187,
+      "description": "Nuts, walnuts, english",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 654,
+        "protein": 15.23,
+        "carbs": 13.71,
+        "fat": 65.21,
+        "fiber": 6.7
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170187"
+    },
+    "chickpea": {
+      "fdcId": 173800,
+      "description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained solids",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 139,
+        "protein": 7.05,
+        "carbs": 22.53,
+        "fat": 2.77,
+        "fiber": 6.4
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=173800"
+    },
+    "chicken": {
+      "fdcId": 171077,
+      "description": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 120,
+        "protein": 22.5,
+        "carbs": 0,
+        "fat": 2.62,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=171077"
+    },
+    "beef": {
+      "fdcId": 171796,
+      "description": "Beef, ground, 85% lean meat / 15% fat, raw (Includes foods for USDA's Food Distribution Program)",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 215,
+        "protein": 18.59,
+        "carbs": 0,
+        "fat": 15,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=171796"
+    },
+    "milk": {
+      "fdcId": 171265,
+      "description": "Milk, whole, 3.25% milkfat, with added vitamin D",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 61,
+        "protein": 3.15,
+        "carbs": 4.8,
+        "fat": 3.25,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=171265"
+    },
+    "cream": {
+      "fdcId": 170859,
+      "description": "Cream, fluid, heavy whipping",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 340,
+        "protein": 2.84,
+        "carbs": 2.84,
+        "fat": 36.08,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170859"
+    },
+    "flour": {
+      "fdcId": 169761,
+      "description": "Wheat flour, white, all-purpose, unenriched",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 364,
+        "protein": 10.33,
+        "carbs": 76.31,
+        "fat": 0.98,
+        "fiber": 2.7
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=169761"
+    },
+    "pork": {
+      "fdcId": 167812,
+      "description": "Pork, fresh, belly, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 518,
+        "protein": 9.34,
+        "carbs": 0,
+        "fat": 53.01,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=167812"
+    },
+    "salt": {
+      "fdcId": 173468,
+      "description": "Salt, table",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 0,
+        "protein": 0,
+        "carbs": 0,
+        "fat": 0,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=173468"
+    },
+    "pepper": {
+      "fdcId": 170931,
+      "description": "Spices, pepper, black",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 251,
+        "protein": 10.39,
+        "carbs": 63.95,
+        "fat": 3.26,
+        "fiber": 25.3
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170931"
+    },
+    "cashews": {
+      "fdcId": 170162,
+      "description": "Nuts, cashew nuts, raw",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 553,
+        "protein": 18.22,
+        "carbs": 30.19,
+        "fat": 43.85,
+        "fiber": 3.3
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170162"
+    },
+    "whiteBeans": {
+      "fdcId": 175204,
+      "description": "Beans, white, mature seeds, canned",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 114,
+        "protein": 7.26,
+        "carbs": 21.2,
+        "fat": 0.29,
+        "fiber": 4.8
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=175204"
+    },
+    "coconutMilk": {
+      "fdcId": 170173,
+      "description": "Nuts, coconut milk, canned (liquid expressed from grated meat and water)",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 197,
+        "protein": 2.02,
+        "carbs": 2.81,
+        "fat": 21.33,
+        "fiber": null
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=170173"
+    },
+    "gluten": {
+      "fdcId": 168147,
+      "description": "Vital wheat gluten",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 370,
+        "protein": 75.16,
+        "carbs": 13.79,
+        "fat": 1.85,
+        "fiber": 0.6
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=168147"
+    },
+    "msg": {
+      "fdcId": 2568847,
+      "description": "MONOSODIUM GLUTAMATE UMAMI SEASONING",
+      "dataType": "Branded",
+      "brandOwner": "Ajinomoto USA Inc.",
+      "per100g": {
+        "kcal": 0,
+        "protein": 0,
+        "carbs": 0,
+        "fat": 0,
+        "fiber": null
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=2568847"
+    },
+    "yeast": {
+      "fdcId": 2467967,
+      "description": "NUTRITIONAL YEAST",
+      "dataType": "Branded",
+      "brandOwner": "Wegmans Food Markets, Inc. ",
+      "per100g": {
+        "kcal": 375,
+        "protein": 50,
+        "carbs": 31.25,
+        "fat": 3.12,
+        "fiber": 18.8
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=2467967"
+    },
+    "mirin": {
+      "fdcId": 2039206,
+      "description": "KIKKOMAN, AJI-MIRIN",
+      "dataType": "Branded",
+      "brandOwner": "JFC International Inc.",
+      "per100g": {
+        "kcal": 233,
+        "protein": 0,
+        "carbs": 46.67,
+        "fat": 0,
+        "fiber": null
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=2039206"
+    },
+    "ramen": {
+      "fdcId": 2063300,
+      "description": "RAMEN NOODLES",
+      "dataType": "Branded",
+      "brandOwner": "H & U, Inc.",
+      "per100g": {
+        "kcal": 264,
+        "protein": 9.29,
+        "carbs": 54.29,
+        "fat": 0.71,
+        "fiber": 2.1
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=2063300"
+    },
+    "kombu": {
+      "fdcId": 1491009,
+      "description": "KOMBU",
+      "dataType": "Branded",
+      "brandOwner": "Rising Tide Sea Vegetables",
+      "per100g": {
+        "kcal": 243,
+        "protein": 14.29,
+        "carbs": 42.86,
+        "fat": 0,
+        "fiber": 14.3
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=1491009"
+    },
+    "seitan": {
+      "fdcId": 2012995,
+      "description": "SEITAN WHEAT PROTEIN CUBED, SEITAN",
+      "dataType": "Branded",
+      "brandOwner": "The Hain Celestial Group, Inc.",
+      "per100g": {
+        "kcal": 141,
+        "protein": 24.71,
+        "carbs": 5.88,
+        "fat": 2.35,
+        "fiber": 1.2
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=2012995"
+    },
+    "water": {
+      "fdcId": 173647,
+      "description": "Beverages, water, tap, drinking",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 0,
+        "protein": 0,
+        "carbs": 0,
+        "fat": 0,
+        "fiber": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=173647"
+    },
+    "avocado": {
+      "fdcId": 171705,
+      "description": "Avocados, raw, all commercial varieties",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 160,
+        "protein": 2,
+        "carbs": 8.53,
+        "fat": 14.66,
+        "fiber": 6.7
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=171705"
+    },
+    "edamameFrozen": {
+      "fdcId": 168410,
+      "description": "Edamame, frozen, unprepared",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 109,
+        "protein": 11.22,
+        "carbs": 7.61,
+        "fat": 4.73,
+        "fiber": 4.8
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=168410"
+    },
+    "edamameCooked": {
+      "fdcId": 168411,
+      "description": "Edamame, frozen, prepared",
+      "dataType": "SR Legacy",
+      "brandOwner": null,
+      "per100g": {
+        "kcal": 121,
+        "protein": 11.91,
+        "carbs": 8.91,
+        "fat": 5.2,
+        "fiber": 5.2
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search/?query=168411"
+    }
+  }
+}

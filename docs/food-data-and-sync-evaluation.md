@@ -1,6 +1,6 @@
 # Food data, speed, and recipe sync evaluation
 
-25 October 2026. These are initial findings from the Windows companion using one Italian beef ragù as a test recipe. They are not a broad quality benchmark or a cooking test.
+25 October 2026. These are historical initial findings from the Windows companion using one Italian beef ragù as a test recipe. They are not a broad quality benchmark or a cooking test. The database integration and generation changes described as future work below have since been prototyped; see [the current food-data implementation and timings](food-data-prototype.md).
 
 ## What is in the app now
 

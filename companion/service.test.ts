@@ -194,6 +194,16 @@ describe("Windows companion security and request flow", () => {
     expect(searchFoods).toHaveBeenCalledTimes(1);
     expect(client.streamResponse).not.toHaveBeenCalled();
   });
+  it("keeps product search behind pairing and returns provider data without model usage", async () => {
+    const client = fakeClient(false);
+    const searchProducts = vi.fn(async () => ({source:"Open Food Facts" as const,query:"seitan",products:[],matchPolicy:"review-required" as const}));
+    const service = createCompanionService(client,{searchProducts});
+    expect((await service.handle(request("product-search",{query:"seitan"}),{local:false})).status).toBe(401);
+    expect(searchProducts).not.toHaveBeenCalled();
+    expect((await service.handle(request("product-search",{query:"seitan"}),{local:true})).status).toBe(200);
+    expect(searchProducts).toHaveBeenCalledTimes(1);
+    expect(client.streamResponse).not.toHaveBeenCalled();
+  });
   it("permits explicitly labelled nutrition assumptions without web research", async () => {
     const client = fakeClient();
     const service = createCompanionService(client);
@@ -208,22 +218,17 @@ describe("Windows companion security and request flow", () => {
     expect(options.instructions).toContain("best-effort nutrition estimates");
     expect(options.instructions).not.toContain("Do not invent citations or numerical nutrition inputs");
   });
-  it("offers USDA candidates for desktop fast mode without treating them as verified matches", async () => {
+  it("uses compact cooking output and copies nutrition from checked database records", async () => {
     const client = fakeClient();
-    const searchFoods = vi.fn(async () => ({
-      source: "USDA FoodData Central" as const,
-      query: "chicken breast",
-      candidates: [{
-        fdcId: 123,
-        description: "Chicken, breast, raw",
-        dataType: "SR Legacy",
-        brandOwner: null,
-        per100g: { kcal: 120, protein: 22, carbs: 0, fat: 3, fiber: 0 },
-        sourceUrl: "https://fdc.nal.usda.gov/food-search/?query=123",
-      }],
-      matchPolicy: "review-required" as const,
-    }));
-    const service = createCompanionService(client, { searchFoods });
+    const patch = (variant:typeof rawBundle.vegan) => ({
+      title:variant.recipe.title,
+      replacements:[{originalIngredientIds:["chicken"],ingredients:[variant.recipe.ingredients[0]],reason:variant.changes[0].reason}],
+      stepEdits:[{originalStep:1,steps:[variant.recipe.steps[0]],reason:variant.stepChanges[0].reason}],
+      appendSteps:[],flavour:variant.flavour,texture:variant.texture,macroNotes:variant.macroNotes,
+      tradeoffs:variant.tradeoffs,minutes:variant.minutes,portionAssumptions:[],
+    });
+    client.streamResponse.mockResolvedValue({text:JSON.stringify({ingredientAnalysis:rawBundle.ingredientAnalysis,notes:rawBundle.notes,originalPortionAssumptions:[],vegetarian:patch(rawBundle.vegetarian),vegan:patch(rawBundle.vegan)})});
+    const service = createCompanionService(client);
     const response = await service.handle(
       request("adapt", { recipe: original, research: false, foodData: true }),
       { local: true },
@@ -231,14 +236,17 @@ describe("Windows companion security and request flow", () => {
     expect(response.status).toBe(202);
     await new Promise((resolve) => setTimeout(resolve, 0));
     const options = client.streamResponse.mock.calls[0][0];
-    expect(searchFoods).toHaveBeenCalledTimes(original.ingredients.length);
     expect(options.tools).toBeUndefined();
-    expect(options.input).toContain("not confirmed matches");
-    expect(options.instructions).toContain("Never treat the first search hit");
-    expect(options.instructions).toContain("Use only the supplied USDA URLs");
+    expect(JSON.stringify(options.text)).not.toContain("kcalPer100g");
+    expect(options.instructions).toContain("Do not output numerical");
+    expect(options.instructions).toContain("Return only the requested patch object");
+    expect(JSON.stringify(options.text)).not.toContain('"recipe":');
     const { job } = await response.json();
     const result = await (await service.handle(request("result", { job, recipe: original }), { local: true })).json();
-    expect(result.foodData).toEqual({ queriesWithCandidates: 3, candidateCount: 3 });
+    expect(result.foodData).toEqual({original:3,vegetarian:3,vegan:3});
+    expect(result.data.vegan.nutritionInputs.find((row:{ingredientId:string})=>row.ingredientId==="oil").fatPer100g).toBe(100);
+    expect(result.databaseSources.length).toBeGreaterThan(0);
+    expect(result.timings.totalMs).toBeGreaterThanOrEqual(0);
   });
   it("shows an uncited URL draft only with a clear verification warning", async () => {
     const client = fakeClient();

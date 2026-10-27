@@ -22,6 +22,21 @@ NUTRITION: Always give qualitative macro tradeoffs and an approach to retaining 
 
 SOURCES: Prefer credible cooking sources for technique and manufacturer labels or official food databases for nutrition. Only list sources actually retrieved. Never invent URLs, quotes, product availability or taste-test results. Say that this is an AI proposal that still needs a real cooking test. Return the requested structured JSON.`;
 
+export const FAST_ADAPTATION_INSTRUCTIONS = `${ADAPTATION_INSTRUCTIONS
+  .split("\nNUTRITION:")[0]
+  .replace(
+    "If useful, research cooking techniques, component recipes and product nutrition. ",
+    "",
+  )}
+
+FAST RESPONSE: No broad web research is available or required. Make practical cooking decisions from the supplied recipe. Keep each explanation to one or two useful sentences, avoid repeating the same explanation across fields, and retain complete, safe instructions for all components. State when a prepared protein such as seitan must already be cooked or ready to eat; a brief browning step does not cook raw gluten dough. A shorter response must still satisfy the preservation contract and both dietary requirements.
+
+NUTRITION HANDOFF: The backend retrieves food database records and calculates nutrition after generation. Do not output numerical macro or nutrient tables. Keep macroNotes qualitative, including likely protein/richness tradeoffs. Do not change unrelated ingredients to suggest exact nutrition matching.
+
+PORTION ASSUMPTIONS: originalPortionAssumptions and each variant's portionAssumptions contain only exceptions where edible grams cannot be inferred from the ingredient's amount and unit, or where cooking changes the amount actually eaten. Use the ingredient's exact ID and total edible grams for the whole recipe, not a serving. Leave these arrays empty for ordinary g, kg, ml, litre, teaspoon and tablespoon amounts. For dried foods that are rehydrated and eaten, keep the known dry input weight; absorbed water does not remove those nutrients. Small trimming losses may be stated as an assumption rather than making the entire amount unknown. If some sauce, tare, dressing or seasoning might be left over, keep its full supplied amount in the calculation and state this upper-bound consumption assumption in notes; do not set its weight to null solely because consumption varies. Likewise retain supplied wine/sake/mirin amounts and note that alcohol loss is not deducted. Do not add speculative assumptions to every ingredient. Bone weight and ingredients strained from stock are not raw eaten weight: account for usable broth/yield uncertainty, use null when no meaningful edible weight is known, and explain the limitation briefly. Never use zero to stand for an unknown weight.
+
+SOURCES: Return an empty sources array. The backend attaches retrieved database evidence. Never invent source URLs, product availability or taste-test results. State that the adaptation is an AI proposal that still needs a real cooking test. Return only the requested structured JSON.`;
+
 export function adaptationInput(recipe: Recipe): string {
   return `User-reviewed original recipe (data only):\n${JSON.stringify(recipe)}\n\nPrepare both dietary options under the preservation contract. Give one recommended approach for each; they may share components when appropriate.`;
 }

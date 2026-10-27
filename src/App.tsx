@@ -165,7 +165,7 @@ function Nutrition({ bundle }: { bundle: AdaptationBundle }) {
                     {estimate?.perServing &&
                     estimate.perServing[key] !== null &&
                     estimate.perServing[key] !== undefined
-                      ? `${estimate.missingIngredients.length ? "≥" : "≈"}${estimate.perServing[key]}${key === "kcal" ? "" : " g"}`
+                      ? `${estimate.missingIngredients.length || (key === "fiber" && estimate.missingFibreIngredients?.length) ? "≥" : "≈"}${estimate.perServing[key]}${key === "kcal" ? "" : " g"}`
                       : "—"}
                   </td>
                 ))}
@@ -174,11 +174,19 @@ function Nutrition({ bundle }: { bundle: AdaptationBundle }) {
           </tbody>
         </table>
       </div>
-      {estimates.some(([, estimate]) => !estimate?.perServing || estimate.missingIngredients.length > 0) && (
+      {estimates.some(([,estimate]) => (estimate?.databaseIngredients || 0) > 0) && (
+        <div className="muted">
+          <strong>Database coverage</strong>
+          <ul>{estimates.map(([name,estimate]) => <li key={name}>{name}: {estimate?.databaseIngredients || 0} of {estimate?.totalIngredients || 0} ingredients use retrieved nutrition values.</li>)}</ul>
+          <p>Product matches and edible amounts can still be assumptions. See the ingredient notes below.</p>
+        </div>
+      )}
+      {estimates.some(([, estimate]) => !estimate?.perServing || estimate.missingIngredients.length > 0 || (estimate.missingFibreIngredients?.length || 0) > 0) && (
         <p className="muted">
           “≥” is a partial total that excludes ingredients listed below; it
           cannot be compared directly with a complete estimate. A dash means
-          there is too little data to estimate that value.
+          there is too little data to estimate that value. Fibre totals also
+          exclude ingredients whose source does not report fibre.
         </p>
       )}
       <details>
@@ -191,6 +199,7 @@ function Nutrition({ bundle }: { bundle: AdaptationBundle }) {
                 Not included in this estimate: {estimate.missingIngredients.join(", ")}.
               </p>
             ) : null}
+            {estimate?.missingFibreIngredients?.length ? <p>Fibre not reported for: {estimate.missingFibreIngredients.join(", ")}.</p> : null}
             {estimate?.notes.length ? (
               <ul>
                 {estimate.notes.map((note, i) => (
@@ -241,6 +250,7 @@ export function App() {
   const controller = useRef<AbortController | null>(null);
   const first = useRef(true);
   const importFile = useRef<HTMLInputElement>(null);
+  const generationChoiceSet = useRef(false);
 
   useEffect(() => {
     if (!connectionOpen) setFoodKeyInput("");
@@ -264,7 +274,13 @@ export function App() {
 
   async function refreshStatus(currentCode = code) {
     try {
-      setStatus(await getAIStatus(currentCode));
+      const next = await getAIStatus(currentCode);
+      setStatus(next);
+      if (!generationChoiceSet.current && next.foodData?.configured) {
+        setFoodData(true);
+        setResearch(false);
+        generationChoiceSet.current = true;
+      }
       setStatusError("");
     } catch (cause) {
       setStatus(null);
@@ -911,30 +927,32 @@ export function App() {
                   checked={research}
                   disabled={!!busy}
                   onChange={(event) => {
+                    generationChoiceSet.current = true;
                     setResearch(event.target.checked);
                     if (event.target.checked) setFoodData(false);
                   }}
                 />{" "}
                 Use online research when adapting
               </label>
-              {status?.local && (
+              {(status?.local || status?.foodData?.configured) && (
                 <label className="research-option">
                   <input
                     type="checkbox"
                     checked={foodData}
                     disabled={!!busy}
                     onChange={(event) => {
+                      generationChoiceSet.current = true;
                       setFoodData(event.target.checked);
                       if (event.target.checked) setResearch(false);
                     }}
                   />{" "}
-                  Try USDA food data instead (experimental, faster)
+                  Use food databases
                 </label>
               )}
               {foodData && (
                 <p className="muted">
-                  USDA gives candidate nutrition values for the original ingredients.
-                  Check the matches; replacement nutrition may still be estimated.
+                  Nutrition is calculated from checked USDA records and product labels.
+                  Unmatched foods and portion assumptions are shown with the result.
                 </p>
               )}
               <div className="button-row">

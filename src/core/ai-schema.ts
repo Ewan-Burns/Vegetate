@@ -120,8 +120,35 @@ export const adaptationBundleSchema = z
   })
   .strict();
 
+/** Fast generation returns cooking decisions; the backend supplies nutrient data. */
+export const portionAssumptionSchema = z
+  .object({
+    ingredientId: z.string().min(1).max(80),
+    grams: z.number().positive().nullable(),
+    note: z.string().max(240),
+  })
+  .strict();
+
+const fastVariantSchema = variantSchema
+  .omit({ nutritionInputs: true })
+  .extend({
+    portionAssumptions: z.array(portionAssumptionSchema).max(100),
+  })
+  .strict();
+
+export const fastAdaptationBundleSchema = adaptationBundleSchema
+  .omit({ originalNutritionInputs: true, vegetarian: true, vegan: true })
+  .extend({
+    originalPortionAssumptions: z.array(portionAssumptionSchema).max(100),
+    vegetarian: fastVariantSchema,
+    vegan: fastVariantSchema,
+  })
+  .strict();
+
 export type ExtractedRecipe = z.infer<typeof extractedRecipeSchema>;
 export type AIBundle = z.infer<typeof adaptationBundleSchema>;
+export type FastAIBundle = z.infer<typeof fastAdaptationBundleSchema>;
+export type PortionAssumption = z.infer<typeof portionAssumptionSchema>;
 export type NutritionInput = z.infer<typeof nutritionInputSchema>;
 export type IngredientAnalysis = AIBundle["ingredientAnalysis"][number];
 export interface Source {
@@ -139,6 +166,9 @@ export interface NutritionEstimate {
   perServing: Macros | null;
   missingIngredients: string[];
   notes: string[];
+  databaseIngredients?: number;
+  totalIngredients?: number;
+  missingFibreIngredients?: string[];
 }
 export interface AdaptationBundle {
   original: Recipe;
@@ -167,11 +197,14 @@ export function estimateNutrition(
   recipe: Recipe,
   inputs: NutritionInput[],
   verifiedUrls: Set<string>,
+  databaseUrls: Set<string> = new Set(),
 ): NutritionEstimate {
   const missingIngredients: string[] = [];
   const notes: string[] = [];
   const totals = { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
-  let fiberKnown = true;
+  const missingFibreIngredients: string[] = [];
+  let knownFibre = 0;
+  let databaseIngredients = 0;
   let included = 0;
   for (const ingredient of recipe.ingredients) {
     // Salt, water and an unspecified pinch of pepper do not determine macro estimates.
@@ -186,6 +219,7 @@ export function estimateNutrition(
       (input) => input.ingredientId === ingredient.id,
     );
     const row = matches.length === 1 ? matches[0] : undefined;
+    if (row?.note) notes.push(`${ingredient.name}: ${row.note}`);
     if (
       !row ||
       row.grams === null ||
@@ -199,18 +233,18 @@ export function estimateNutrition(
       continue;
     }
     included++;
+    if (row.sourceUrl && databaseUrls.has(row.sourceUrl)) databaseIngredients++;
     totals.kcal += (row.grams * row.kcalPer100g) / 100;
     totals.protein += (row.grams * row.proteinPer100g) / 100;
     totals.carbs += (row.grams * row.carbsPer100g) / 100;
     totals.fat += (row.grams * row.fatPer100g) / 100;
-    if (row.fiberPer100g == null) fiberKnown = false;
-    else totals.fiber += (row.grams * row.fiberPer100g) / 100;
+    if (row.fiberPer100g == null) missingFibreIngredients.push(ingredient.name);
+    else { totals.fiber += (row.grams * row.fiberPer100g) / 100; knownFibre++; }
     if (!row.sourceUrl || !verifiedUrls.has(row.sourceUrl))
       notes.push(`${ingredient.name}: nutrition values are an unverified estimate.`);
-    if (row.note) notes.push(`${ingredient.name}: ${row.note}`);
   }
   if (!recipe.servings || !included)
-    return { perServing: null, missingIngredients, notes };
+    return { perServing: null, missingIngredients, notes, databaseIngredients, totalIngredients: included+missingIngredients.length, missingFibreIngredients };
   const rounded = (value: number) =>
     Math.round((value / recipe.servings) * 10) / 10;
   const perServing: Macros = {
@@ -218,9 +252,9 @@ export function estimateNutrition(
     protein: rounded(totals.protein),
     carbs: rounded(totals.carbs),
     fat: rounded(totals.fat),
-    fiber: fiberKnown ? rounded(totals.fiber) : null,
+    fiber: knownFibre ? rounded(totals.fiber) : null,
   };
-  return { perServing, missingIngredients, notes };
+  return { perServing, missingIngredients, notes, databaseIngredients, totalIngredients: included+missingIngredients.length, missingFibreIngredients };
 }
 
 export function dietIssues(
@@ -233,23 +267,24 @@ export function dietIssues(
       .toLowerCase()
       .replace(/\b(?:without|no) fish dashi\b/g, "")
       .replace(/\bfish[- ]free\b/g, "");
-    const explicitPlant =
-      /\b(?:vegan|plant[- ]based|meat[- ]free|meatless|mock|vegetarian)\b/.test(
-        name,
-      );
+    const explicitPlant = /\b(?:vegan|plant[- ]based)\b/.test(name);
+    const suitableForMode =
+      explicitPlant || (mode === "vegetarian" && /\bvegetarian\b/.test(name));
+    const meatAlternative =
+      suitableForMode || /\b(?:meat[- ]free|meatless|mock)\b/.test(name);
     if (
-      !explicitPlant &&
+      !meatAlternative &&
       /\b(?:beef|pork|chicken|lamb|mutton|duck|turkey|veal|venison|bacon|ham|pancetta|chorizo|salami|fish|anchov\w*|salmon|tuna|prawn\w*|shrimp|gelatin\w*|gelatine|lard|tallow|oyster sauce)\b/.test(
         name.replace(/beef(?:steak)? tomato(?:es)?/g, "tomato"),
       )
     )
       issues.push(ingredient.name);
-    if (!explicitPlant && /\bworcestershire\b/.test(name))
+    if (!meatAlternative && /\bworcestershire\b/.test(name))
       issues.push(`${ingredient.name} (check for fish)`);
     if (
       mode === "vegetarian" &&
       /\b(?:parmesan|parmigiano|grana padano|pecorino)\b/.test(name) &&
-      !explicitPlant
+      !suitableForMode
     )
       issues.push(`${ingredient.name} (vegetarian suitability is unconfirmed)`);
     if (mode === "vegan" && !explicitPlant) {
@@ -319,6 +354,7 @@ export function normalizeBundle(
   original: Recipe,
   retrieved: Source[],
   provider: "openai" | "chatgpt" = "openai",
+  databaseSourceUrls: string[] = [],
 ): AdaptationBundle {
   const sources = retrieved.filter((source, index, all) => {
     try {
@@ -329,6 +365,7 @@ export function normalizeBundle(
     return all.findIndex((other) => other.url === source.url) === index;
   });
   const verified = new Set(sources.map((source) => source.url));
+  const databaseUrls = new Set(databaseSourceUrls);
   const variants = (["vegetarian", "vegan"] as const).map((mode) => {
     const variant = data[mode];
     const recipe: Recipe = { ...variant.recipe, id: `${original.id}-${mode}` };
@@ -352,7 +389,7 @@ export function normalizeBundle(
       texture: variant.texture,
       macroNotes: variant.macroNotes,
       stepChanges: variant.stepChanges,
-      nutrition: estimateNutrition(recipe, variant.nutritionInputs, verified),
+      nutrition: estimateNutrition(recipe, variant.nutritionInputs, verified, databaseUrls),
     };
     return adaptation;
   });
@@ -365,6 +402,7 @@ export function normalizeBundle(
       original,
       data.originalNutritionInputs,
       verified,
+      databaseUrls,
     ),
     sources,
     notes: data.notes,
