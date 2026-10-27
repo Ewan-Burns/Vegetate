@@ -14,6 +14,7 @@ export interface AIStatus {
   local?: boolean;
   publicUrl?: string;
   pairingCode?: string;
+  foodData?: { configured: boolean; canSaveKey: boolean };
   session?: {
     status: string;
     sharing: boolean;
@@ -71,6 +72,10 @@ export async function signOutChatGPT(): Promise<void> {
 }
 export async function selectModel(model: string, code: string): Promise<void> {
   await jsonRequest("model", { model }, code);
+}
+
+export async function saveUsdaKey(apiKey: string, code: string): Promise<void> {
+  await jsonRequest("food-key", { apiKey }, code);
 }
 
 function delay(ms: number, signal: AbortSignal): Promise<void> {

@@ -61,6 +61,40 @@ describe("Windows companion security and request flow", () => {
     ).toBe(403);
     expect(client.signIn).not.toHaveBeenCalled();
   });
+  it("lets a paired phone save a key but never returns the key in status or responses", async () => {
+    const secret = "synthetic-usda-key-for-testing";
+    const replacementSearch = vi.fn(async () => ({
+      source: "USDA FoodData Central" as const,
+      query: "oats", candidates: [], matchPolicy: "review-required" as const,
+    }));
+    const configureFoodKey = vi.fn(async () => replacementSearch);
+    const service = createCompanionService(fakeClient(), { configureFoodKey });
+    const unpaired = await service.handle(status(), { local: false });
+    expect((await unpaired.json()).foodData).toBeUndefined();
+    const blocked = await service.handle(request("food-key", { apiKey: secret }), { local: false });
+    expect(blocked.status).toBe(401);
+    expect(configureFoodKey).not.toHaveBeenCalled();
+    const local = await (await service.handle(status(), { local: true })).json();
+    const unlock = await (await service.handle(request("unlock", {}, local.pairingCode), { local: false })).json();
+    const saved = await service.handle(request("food-key", { apiKey: secret }, unlock.token), { local: false });
+    expect(saved.status).toBe(200);
+    expect(await saved.text()).toBe('{"saved":true}');
+    expect(configureFoodKey).toHaveBeenCalledWith(secret);
+    const after = await (await service.handle(status(), { local: true })).text();
+    expect(after).not.toContain(secret);
+    expect(JSON.parse(after).foodData.configured).toBe(true);
+    await service.handle(request("food-search", { query: "oats" }), { local: true });
+    expect(replacementSearch).toHaveBeenCalledTimes(1);
+  });
+  it("does not echo keys even when key storage reports an unexpected error", async () => {
+    const secret = "synthetic-usda-key-for-testing";
+    const service = createCompanionService(fakeClient(), {
+      configureFoodKey: async () => { throw new Error(secret); },
+    });
+    const response = await service.handle(request("food-key", { apiKey: secret }), { local: true });
+    expect(response.status).toBe(502);
+    expect(await response.text()).not.toContain(secret);
+  });
   it("requires pairing and confines jobs to the paired device", async () => {
     const client = fakeClient();
     const service = createCompanionService(client);

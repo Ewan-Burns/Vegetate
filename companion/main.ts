@@ -9,6 +9,8 @@ import { createCompanionService } from "./service";
 import { makeServer } from "./http";
 import { tailscaleOrigin } from "./tailscale";
 import { loadLocalEnv } from "../scripts/load-local-env";
+import { createFoodKeyStore } from "./food-key-store";
+import { createFoodSearch } from "./food-data";
 
 async function main() {
   loadLocalEnv();
@@ -25,18 +27,37 @@ async function main() {
   const publicOrigin = await tailscaleOrigin();
   const localData =
     process.env.LOCALAPPDATA || join(homedir(), "AppData", "Local");
+  const encryption = createWindowsEncryption();
+  const foodKeyStore = createFoodKeyStore(
+    join(localData, "Vegetate", "Secrets", "usda-key.dpapi"),
+    encryption,
+  );
+  const savedFoodKey = await foodKeyStore.read().catch(() => {
+    console.error("The saved USDA key could not be opened. Save it again in AI connection.");
+    return undefined;
+  });
   const client = createChatGPT({
     appName: "Vegetate",
     appId: "vegetate",
     redirectPort: 0,
     sendHostId: true,
     storageDir: join(localData, "Vegetate", "ChatGPT"),
-    credentialEncryption: createWindowsEncryption(),
+    credentialEncryption: encryption,
     openBrowser: async (url) => {
       await open(url);
     },
   });
-  const service = createCompanionService(client, { publicUrl: publicOrigin });
+  const service = createCompanionService(client, {
+    publicUrl: publicOrigin,
+    searchFoods: createFoodSearch({ apiKey: savedFoodKey }),
+    foodKeyConfigured: Boolean(savedFoodKey || process.env.USDA_FDC_API_KEY),
+    configureFoodKey: async (key) => {
+      const search = createFoodSearch({ apiKey: key });
+      await search({ query: "oats", pageSize: 1 });
+      await foodKeyStore.save(key);
+      return search;
+    },
+  });
   const local = makeServer({
     local: true,
     port: 8787,

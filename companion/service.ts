@@ -77,10 +77,14 @@ export function createCompanionService(
     now?: () => number;
     publicUrl?: string;
     searchFoods?: ReturnType<typeof createFoodSearch>;
+    foodKeyConfigured?: boolean;
+    configureFoodKey?: (key: string) => Promise<ReturnType<typeof createFoodSearch>>;
   } = {},
 ) {
   const now = options.now || Date.now;
-  const searchFoods = options.searchFoods || createFoodSearch();
+  let searchFoods = options.searchFoods || createFoodSearch();
+  let foodKeyConfigured = options.foodKeyConfigured ?? Boolean(process.env.USDA_FDC_API_KEY);
+  let savingFoodKey = false;
   const rawPair = randomBytes(6).toString("hex").toUpperCase();
   const pairingCode = `${rawPair.slice(0, 6)}-${rawPair.slice(6)}`;
   const paired = new Map<string, number>();
@@ -92,6 +96,7 @@ export function createCompanionService(
   let signInError = "";
   let signInPending = false;
   const attempts: number[] = [];
+  const foodKeyAttempts: number[] = [];
 
   function owner(
     request: Request,
@@ -281,6 +286,10 @@ export function createCompanionService(
           authentication: "pairing-code",
           publicUrl: context.local ? options.publicUrl : undefined,
           ...(context.local ? { pairingCode } : {}),
+          ...(identity ? { foodData: {
+            configured: foodKeyConfigured,
+            canSaveKey: Boolean(options.configureFoodKey),
+          } } : {}),
           session: identity
             ? {
                 status: session.status,
@@ -369,6 +378,36 @@ export function createCompanionService(
           401,
           "Pair this device with the code shown on your desktop.",
         );
+      if (action === "food-key") {
+        if (!options.configureFoodKey)
+          throw new ApiError(503, "Secure USDA key storage is unavailable on this server.");
+        const key = z.string().trim().min(20).max(200).regex(/^[A-Za-z0-9_-]+$/).safeParse(body.apiKey);
+        if (!key.success)
+          throw new ApiError(400, "Paste only the USDA API key value, without an env variable name or quotes.");
+        if (savingFoodKey)
+          throw new ApiError(409, "A USDA key is already being verified.");
+        while (foodKeyAttempts.length && foodKeyAttempts[0] < now() - 60000)
+          foodKeyAttempts.shift();
+        if (foodKeyAttempts.length >= 3)
+          throw new ApiError(429, "Wait one minute before trying another USDA key.");
+        foodKeyAttempts.push(now());
+        savingFoodKey = true;
+        try {
+          const nextSearch = await options.configureFoodKey(key.data);
+          searchFoods = nextSearch;
+          foodKeyConfigured = true;
+          return json({ saved: true });
+        } catch (error) {
+          throw new ApiError(
+            error instanceof ApiError && error.status === 429 ? 429 : 502,
+            error instanceof ApiError && error.status === 429
+              ? "USDA is rate limiting verification. Try again later."
+              : "The USDA key could not be verified or saved. Check the key and try again.",
+          );
+        } finally {
+          savingFoodKey = false;
+        }
+      }
       if (action === "food-search") {
         if (!context.local)
           throw new ApiError(

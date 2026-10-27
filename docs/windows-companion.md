@@ -39,6 +39,12 @@ Do not sign in from the phone for the initial connection: OAuth returns to a loo
 
 Pairing codes change when the companion restarts. If the phone asks to pair again, enter the new code. Model requests and OAuth credentials stay in the desktop process. Tokens are stored encrypted with Windows DPAPI under the current Windows user's local app-data directory, outside the repository. The phone receives an app session token, never the ChatGPT OAuth tokens.
 
+### Add a USDA nutrition key from your phone
+
+After pairing, open **AI connection → USDA nutrition key**, paste only the key value, and select **Save securely**. The private HTTPS connection sends it directly to the desktop companion, which verifies it with USDA and stores it encrypted with Windows DPAPI at `%LOCALAPPDATA%\Vegetate\Secrets\usda-key.dpapi`. The key is not returned to the browser, saved in browser storage, or included in the repository. The entry field clears after each attempt. The saved key is used immediately and restored after a companion restart. A saved encrypted key takes priority over a key in a local env file.
+
+You can open this panel directly by adding `/#food-data-key` to the private iPhone address. You do not need OneDrive or a chat attachment for this setup.
+
 Use **Manage ChatGPT usage** to view your plan usage. Reaching a usage limit is not resolved by repeatedly reconnecting or retrying. This app does not enable additional credit purchases or change your account's credit settings.
 
 ## Saved recipes and existing previews

@@ -11,6 +11,7 @@ import {
   signInWithChatGPT,
   signOutChatGPT,
   selectModel,
+  saveUsdaKey,
 } from "./core/ai-client";
 import type { AIStatus } from "./core/ai-client";
 import { extractionToRecipe } from "./core/ai-schema";
@@ -222,7 +223,11 @@ export function App() {
   const [statusError, setStatusError] = useState("");
   const [code, setCode] = useState(readAccessCode);
   const [codeInput, setCodeInput] = useState("");
-  const [connectionOpen, setConnectionOpen] = useState(false);
+  const [connectionOpen, setConnectionOpen] = useState(() => window.location.hash === "#food-data-key");
+  const [foodKeyInput, setFoodKeyInput] = useState("");
+  const [foodKeySaving, setFoodKeySaving] = useState(false);
+  const [foodKeyError, setFoodKeyError] = useState("");
+  const [foodKeySaved, setFoodKeySaved] = useState(false);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [installOpen, setInstallOpen] = useState(false);
   const [cooking, setCooking] = useState(false);
@@ -236,6 +241,26 @@ export function App() {
   const controller = useRef<AbortController | null>(null);
   const first = useRef(true);
   const importFile = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!connectionOpen) setFoodKeyInput("");
+  }, [connectionOpen]);
+
+  async function storeFoodKey() {
+    setFoodKeySaving(true);
+    setFoodKeyError("");
+    setFoodKeySaved(false);
+    try {
+      await saveUsdaKey(foodKeyInput.trim(), code);
+      await refreshStatus();
+      setFoodKeySaved(true);
+    } catch (cause) {
+      setFoodKeyError(cause instanceof Error ? cause.message : "The USDA key could not be saved.");
+    } finally {
+      setFoodKeyInput("");
+      setFoodKeySaving(false);
+    }
+  }
 
   async function refreshStatus(currentCode = code) {
     try {
@@ -1188,8 +1213,9 @@ export function App() {
                 </>
               ) : (
                 <p className="muted">
-                  Manage ChatGPT sign-in on the Windows desktop. Pair this phone
-                  using the code displayed there.
+                  {status.foodData?.canSaveKey
+                    ? "This phone is paired with the Windows desktop."
+                    : "Manage ChatGPT sign-in on the Windows desktop. Pair this phone using the code displayed there."}
                 </p>
               )}
               {status.session?.error && (
@@ -1216,6 +1242,8 @@ export function App() {
           )}
           {statusError && <p className="error">{statusError}</p>}
           {status?.configured && !status.local && (
+            <details open={!status.foodData?.canSaveKey}>
+            <summary>Phone pairing</summary>
             <form
               onSubmit={(event) => {
                 event.preventDefault();
@@ -1263,6 +1291,7 @@ export function App() {
                 )}
               </div>
             </form>
+            </details>
           )}
           {status?.models?.length ? (
             <div>
@@ -1280,6 +1309,31 @@ export function App() {
               </select>
             </div>
           ) : null}
+          {status?.foodData?.canSaveKey && (
+            <section className="panel">
+              <h3>USDA nutrition key</h3>
+              <p>{status.foodData.configured ? "A USDA key is configured on your PC." : "Add your free USDA key for nutrition lookups."}</p>
+              <p className="muted">Paste the key directly here. It is sent to your PC and USDA for verification, then stored encrypted on your PC. It is not saved in this browser.</p>
+              <form onSubmit={(event) => { event.preventDefault(); void storeFoodKey(); }}>
+                <label htmlFor="usda-api-key">USDA API key</label>
+                <input
+                  id="usda-api-key"
+                  type="password"
+                  autoComplete="off"
+                  spellCheck={false}
+                  autoCapitalize="none"
+                  value={foodKeyInput}
+                  disabled={foodKeySaving}
+                  onChange={(event) => { setFoodKeyInput(event.target.value); setFoodKeySaved(false); }}
+                />
+                {foodKeyError && <p className="error" role="alert">{foodKeyError}</p>}
+                {foodKeySaved && <p role="status">USDA key verified and saved securely.</p>}
+                <button type="submit" className="button primary" disabled={foodKeySaving || !foodKeyInput.trim()}>
+                  {foodKeySaving ? "Verifying…" : "Save securely"}
+                </button>
+              </form>
+            </section>
+          )}
           {connectionError && status?.local && (
             <p className="error" role="alert">
               {connectionError}
