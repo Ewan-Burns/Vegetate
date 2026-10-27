@@ -30,6 +30,8 @@ These are search timings, not full recipe generation timings. The shared `DEMO_K
 
 An initial tonkotsu-style ramen run found a validation false positive for an ingredient explicitly labelled "without fish dashi"; the check and prompt were corrected. A second full adaptation completed in 268 seconds and produced vegetarian and vegan versions, but the exhausted demo quota meant no USDA candidates were used and all nutrition figures were unverified model estimates. This does not establish a speed or accuracy gain for the database mode.
 
+On 27 October 2026, a personal USDA key was verified and stored using Windows encryption. After correcting a prompt that had incorrectly required all source URLs to be null, the same ramen benchmark completed in 247 seconds. Eleven ingredient queries supplied 31 candidates. Each dietary version used three USDA references (garlic, dried shiitake and sake); the remaining nutrition inputs were estimates. Searches for bones, kombu, fresh ramen and ramen eggs returned unsuitable candidates, reinforcing the need to review food and preparation matches. This single run does not establish a speed advantage. An Open Food Facts search again returned HTTP 503.
+
 ## Other services
 
 - [Open Food Facts](https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/) is free for read access to packaged-product data, with 10 search requests/minute and 15 product reads/minute per IP. It requires an identifying User-Agent and has [ODbL attribution and reuse conditions](https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/tutorials/license-be-on-the-legal-side/). We have not connected it to this branch.

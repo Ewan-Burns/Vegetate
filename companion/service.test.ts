@@ -235,6 +235,10 @@ describe("Windows companion security and request flow", () => {
     expect(options.tools).toBeUndefined();
     expect(options.input).toContain("not confirmed matches");
     expect(options.instructions).toContain("Never treat the first search hit");
+    expect(options.instructions).toContain("Use only the supplied USDA URLs");
+    const { job } = await response.json();
+    const result = await (await service.handle(request("result", { job, recipe: original }), { local: true })).json();
+    expect(result.foodData).toEqual({ queriesWithCandidates: 3, candidateCount: 3 });
   });
   it("shows an uncited URL draft only with a clear verification warning", async () => {
     const client = fakeClient();

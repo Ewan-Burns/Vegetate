@@ -153,7 +153,9 @@ export function createCompanionService(
             : ADAPTATION_INSTRUCTIONS) +
           (useResearch
             ? ""
-            : "\nNo live web research is available for this request. Do not invent citations. Give cautious best-effort nutrition estimates, mark sourceUrl null, and spell out each portion or product assumption.") +
+            : useFoodData
+              ? "\nNo live web research is available. Use only the supplied USDA URLs for matching nutrition data. For unsourced estimates set sourceUrl to null and spell out each portion or product assumption. Do not invent citations."
+              : "\nNo live web research is available for this request. Do not invent citations. Give cautious best-effort nutrition estimates, mark sourceUrl null, and spell out each portion or product assumption.") +
           (useFoodData
             ? "\nUSDA search results are candidates, not verified ingredient matches. Use a candidate only if its food and preparation clearly match; otherwise estimate and mark the assumption. Raw bones do not equal edible broth, so account for extraction yield and fat separately. Never treat the first search hit as automatically correct."
             : ""),
@@ -239,6 +241,10 @@ export function createCompanionService(
           provider: "chatgpt",
           data,
           sources,
+          ...(useFoodData ? { foodData: {
+            queriesWithCandidates: foodEvidence.length,
+            candidateCount: foodEvidence.reduce((total, row) => total + row.candidates.length, 0),
+          } } : {}),
         };
       }
       job.status = "completed";
